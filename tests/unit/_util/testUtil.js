@@ -1,6 +1,5 @@
 import { jest } from "@jest/globals";
 import { Readable, Writable } from "stream";
-import { handler } from "../../../server/routes";
 
 export default class TestUtil {
   static generateReadableStream(data) {
