@@ -64,6 +64,56 @@ describe("#routes - test suite for api response", () => {
     expect(mockFileStream.pipe).toHaveBeenCalledWith(params.response);
   });
 
+  test("GET /stream - should create client stream", async () => {
+    const params = TestUtil.defaultHandleParams();
+    params.request.method = "GET";
+    params.request.url = "/stream";
+
+    const mockFileStream = TestUtil.generateReadableStream(["data"]);
+
+    jest.spyOn(Controller.prototype, "createClientStream").mockReturnValue({
+      stream: mockFileStream,
+      onClose: jest.fn(),
+    });
+
+    jest.spyOn(mockFileStream, "pipe").mockReturnValue();
+
+    await handler(...params.values());
+    params.request.emit("close");
+
+    expect(Controller.prototype.createClientStream).toHaveBeenCalled();
+    expect(params.response.writeHead).toHaveBeenCalledWith(200, {
+      "Content-Type": "audio/mpeg",
+      "Accept-Ranges": "bytes",
+    });
+  });
+
+  test(`POST /controller`, async () => {
+    const params = TestUtil.defaultHandleParams();
+
+    params.request.method = "POST";
+    params.request.url = "/controller";
+    const body = {
+      command: "start",
+    };
+
+    params.request.push(JSON.stringify(body));
+
+    const jsonResult = {
+      ok: "1",
+    };
+    jest
+      .spyOn(Controller.prototype, Controller.prototype.handleCommand.name)
+      .mockResolvedValue(jsonResult);
+
+    await handler(...params.values());
+
+    expect(Controller.prototype.handleCommand).toHaveBeenCalledWith(body);
+    expect(params.response.end).toHaveBeenCalledWith(
+      JSON.stringify(jsonResult)
+    );
+  });
+
   test("GET /index.html - should response with file stream", async () => {
     const filename = "/index.html";
     const expectedType = ".html";
