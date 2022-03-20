@@ -1,0 +1,12 @@
+heroku.yml
+npm i -g heroku
+heroku login
+
+heroku apps:create spotify-radio-chk
+
+heroku stack:set container
+git push heroku master
+
+heroku open
+
+heroku apps:delete

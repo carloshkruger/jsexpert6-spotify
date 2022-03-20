@@ -1,0 +1,6 @@
+service = business rules and processing
+controller = intermediate the presentation layer and the business layer
+routes = presentation layer
+server = create the server (but do not instantiate)
+index = instantiate the server and expose to the web
+config 
